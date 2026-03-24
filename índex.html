@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+<title>Calculadora</title>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="Calc"/>
+<meta name="theme-color" content="#0e0e0e"/>
+<link rel="apple-touch-icon" href="data:image/png;base64,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"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;overflow:hidden;background:#0e0e0e;font-family:'Syne',sans-serif;}
+
+.bg-orbs{position:fixed;inset:0;pointer-events:none;z-index:0;}
+.orb{position:absolute;border-radius:50%;filter:blur(80px);opacity:.5;animation:drift 8s ease-in-out infinite alternate;}
+.orb1{width:340px;height:340px;background:#c9a000;top:-80px;left:-80px;animation-duration:9s;}
+.orb2{width:280px;height:280px;background:#555;bottom:-60px;right:-60px;animation-duration:11s;animation-delay:-3s;}
+.orb3{width:200px;height:200px;background:#222;top:45%;left:55%;animation-duration:7s;animation-delay:-5s;}
+@keyframes drift{from{transform:translate(0,0) scale(1);}to{transform:translate(30px,20px) scale(1.08);}}
+
+.calc-wrap{position:relative;z-index:1;width:100vw;display:flex;flex-direction:column;}
+.title-row{display:flex;align-items:center;justify-content:space-between;padding:env(safe-area-inset-top, 14px) 16px 14px;}
+.title-left{display:flex;align-items:center;gap:10px;}
+.title-dot{width:8px;height:8px;border-radius:50%;background:#f5c518;box-shadow:0 0 10px #f5c518;}
+.title-text{font-weight:800;font-size:11px;letter-spacing:5px;text-transform:uppercase;color:rgba(255,255,255,.3);}
+
+.hist-btn{background:none;border:1px solid rgba(255,255,255,.12);border-radius:8px;color:rgba(255,255,255,.4);cursor:pointer;padding:5px 12px;font-family:‘Syne’,sans-serif;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;display:flex;align-items:center;gap:6px;transition:all .2s;}
+.hist-btn.active{color:#f5c518;border-color:#c9a000;background:rgba(245,197,24,.1);}
+.hist-badge{background:#f5c518;color:#111;border-radius:4px;font-size:9px;padding:1px 5px;min-width:16px;text-align:center;}
+
+.history-panel{overflow:hidden;max-height:0;transition:max-height .35s cubic-bezier(.4,0,.2,1),opacity .25s;opacity:0;padding:0 16px;}
+.history-panel.open{max-height:240px;opacity:1;}
+.history-inner{max-height:200px;overflow-y:auto;margin-bottom:14px;background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.07);border-radius:16px;padding:10px 14px;}
+.hist-empty{text-align:center;color:rgba(255,255,255,.2);font-size:12px;padding:16px 0;font-family:‘DM Mono’,monospace;}
+.hist-item{padding:8px 0;border-bottom:1px solid rgba(255,255,255,.05);cursor:pointer;}
+.hist-item:last-child{border-bottom:none;}
+.hist-expr{font-family:‘DM Mono’,monospace;font-size:11px;color:rgba(255,255,255,.3);text-align:right;}
+.hist-result{font-family:‘DM Mono’,monospace;font-size:18px;font-weight:500;color:rgba(255,255,255,.85);text-align:right;}
+.hist-clear{text-align:center;padding:6px 0 2px;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,100,100,.4);cursor:pointer;font-weight:700;}
+
+.screen{background:rgba(10,9,0,.65);border:1px solid rgba(245,197,24,.09);border-radius:20px;padding:16px 18px 14px;margin:0 16px 14px;min-height:140px;display:flex;flex-direction:column;justify-content:space-between;overflow:hidden;}
+.screen-top{display:flex;justify-content:space-between;align-items:flex-start;width:100%;margin-bottom:8px;}
+.swipe-hint{font-family:‘DM Mono’,monospace;font-size:10px;color:rgba(255,255,255,.12);letter-spacing:1px;white-space:nowrap;}
+.expr{font-family:‘DM Mono’,monospace;font-weight:400;letter-spacing:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:70%;text-align:right;transition:font-size .2s,color .2s;color:rgba(180,140,0,.5);font-size:13px;}
+.expr.active{color:rgba(245,210,80,.95);font-size:clamp(18px,5.5vw,26px);}
+.screen-bottom{display:flex;align-items:flex-end;justify-content:space-between;width:100%;gap:10px;}
+.copy-btn{background:none;border:1px solid rgba(255,255,255,.12);border-radius:8px;color:rgba(255,255,255,.3);font-family:‘Syne’,sans-serif;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:5px 10px;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:all .2s;}
+.copy-btn.copied{color:#f5c518;border-color:#c9a000;background:rgba(245,197,24,.12);}
+.number{font-family:‘DM Mono’,monospace;font-weight:500;color:#fff;letter-spacing:-2px;line-height:1;text-shadow:0 0 30px rgba(180,140,0,.45);font-size:clamp(48px,13vw,68px);transition:font-size .1s;}
+.number.small{font-size:clamp(26px,7vw,38px);}
+.number.medium{font-size:clamp(36px,9vw,46px);}
+
+@keyframes bounceNum{
+0%{transform:scale(1);}
+25%{transform:scale(1.18) translateY(-4px);}
+50%{transform:scale(.94) translateY(2px);}
+70%{transform:scale(1.07) translateY(-2px);}
+100%{transform:scale(1) translateY(0);}
+}
+.bounce{animation:bounceNum .45s cubic-bezier(.36,.07,.19,.97);}
+
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:clamp(10px,2.5vw,14px);padding:0 16px;padding-bottom:env(safe-area-inset-bottom, 16px);}
+.btn{border:1px solid rgba(255,255,255,.08);cursor:pointer;font-family:‘Syne’,sans-serif;font-weight:700;font-size:clamp(18px,5vw,24px);display:flex;align-items:center;justify-content:center;height:clamp(72px,17vw,86px);border-radius:22px;position:relative;overflow:hidden;outline:none;transition:transform .1s;}
+.btn:active{transform:scale(.89);}
+.btn-func{background:rgba(255,255,255,.07);color:rgba(220,220,220,.85);font-size:clamp(13px,3.5vw,16px);}
+.btn-num{background:rgba(255,255,255,.05);color:#e8e8e8;}
+.btn-op{background:linear-gradient(145deg,rgba(200,160,0,.9),rgba(120,90,0,.8));color:#111;border-color:rgba(200,160,0,.4);font-size:clamp(22px,5.5vw,28px);font-weight:400;box-shadow:0 0 18px rgba(245,197,24,.18);}
+.btn-op.active{background:linear-gradient(145deg,#f5c518,#c9a000);box-shadow:0 0 28px rgba(245,197,24,.65);}
+.btn-zero{grid-column:span 2;justify-content:flex-start;padding-left:clamp(22px,6vw,30px);border-radius:44px;}
+
+.ripple{position:absolute;inset:0;border-radius:inherit;border:2px solid rgba(255,255,255,.45);animation:rpl .3s ease-out forwards;pointer-events:none;}
+@keyframes rpl{from{transform:scale(.5);opacity:1;}to{transform:scale(1.6);opacity:0;}}
+</style>
+
+</head>
+<body>
+<div class="bg-orbs">
+  <div class="orb orb1"></div>
+  <div class="orb orb2"></div>
+  <div class="orb orb3"></div>
+</div>
+
+<div class="calc-wrap" id="app">
+  <div class="title-row">
+    <div class="title-left">
+      <div class="title-dot"></div>
+      <span class="title-text">Calculadora</span>
+    </div>
+    <button class="hist-btn" id="histBtn">Histórico</button>
+  </div>
+
+  <div class="history-panel" id="histPanel">
+    <div class="history-inner" id="histInner">
+      <div class="hist-empty">Nenhum cálculo ainda</div>
+    </div>
+    <div class="hist-clear" id="histClear" style="display:none">✕ Limpar histórico</div>
+  </div>
+
+  <div class="screen" id="screen">
+    <div class="screen-top">
+      <span class="swipe-hint">← deslize pra apagar</span>
+      <div class="expr" id="expr">&nbsp;</div>
+    </div>
+    <div class="screen-bottom">
+      <button class="copy-btn" id="copyBtn">copiar</button>
+      <div class="number" id="number">0</div>
+    </div>
+  </div>
+
+  <div class="grid" id="grid"></div>
+</div>
+
+<script>
+const BUTTONS = [
+  ["AC","+/-","%","÷"],
+  ["7","8","9","×"],
+  ["4","5","6","−"],
+  ["1","2","3","+"],
+  ["0",".","="]
+];
+const OPS = ["÷","×","−","+"];
+
+// State
+let display="0", prev=null, op=null, resetNext=false, expression="", history=[];
+let showHistory=false;
+let touchStartX=null;
+
+// DOM
+const numEl    = document.getElementById("number");
+const exprEl   = document.getElementById("expr");
+const histBtn  = document.getElementById("histBtn");
+const histPanel= document.getElementById("histPanel");
+const histInner= document.getElementById("histInner");
+const histClear= document.getElementById("histClear");
+const copyBtn  = document.getElementById("copyBtn");
+const screen   = document.getElementById("screen");
+const grid     = document.getElementById("grid");
+
+// Haptic
+function haptic(style="light"){
+  if(navigator.vibrate) navigator.vibrate(style==="heavy"?40:style==="medium"?20:10);
+}
+
+// Precision math
+function decimals(n){const s=n.toString(),i=s.indexOf(".");return i===-1?0:s.length-i-1;}
+function compute(a,b,operator){
+  const x=parseFloat(a),y=parseFloat(b);
+  if(isNaN(x)||isNaN(y)) return "Err";
+  if(operator==="÷") return y!==0?x/y:"Err";
+  const f=Math.pow(10,Math.max(decimals(x),decimals(y)));
+  const A=Math.round(x*f),B=Math.round(y*f);
+  if(operator==="+") return (A+B)/f;
+  if(operator==="−") return (A-B)/f;
+  if(operator==="×") return (A*B)/(f*f);
+  return b;
+}
+function fmt(n){
+  if(n==="Err") return "Err";
+  const s=parseFloat(n.toString());
+  if(isNaN(s)) return "0";
+  if(Math.abs(s)>=1e12) return s.toExponential(3);
+  const r=parseFloat(s.toPrecision(10));
+  const str=r.toString();
+  return str.length>12?parseFloat(s.toPrecision(9)).toString():str;
+}
+
+// Render display
+function render(){
+  numEl.textContent = display;
+  const len = display.length;
+  numEl.className = "number" + (len>9?" small":len>6?" medium":"");
+  const hasExpr = expression.length>0;
+  exprEl.textContent = expression || "\u00a0";
+  exprEl.className = "expr" + (hasExpr?" active":"");
+}
+
+// Ripple
+function addRipple(btn){
+  const r=document.createElement("span");
+  r.className="ripple";
+  btn.appendChild(r);
+  setTimeout(()=>r.remove(),300);
+}
+
+// Bounce animation
+function bounce(){
+  numEl.classList.remove("bounce");
+  void numEl.offsetWidth;
+  numEl.classList.add("bounce");
+  setTimeout(()=>numEl.classList.remove("bounce"),500);
+}
+
+// History
+function renderHistory(){
+  if(history.length===0){
+    histInner.innerHTML='<div class="hist-empty">Nenhum cálculo ainda</div>';
+    histClear.style.display="none";
+  } else {
+    histInner.innerHTML = history.map((item,i)=>
+      `<div class="hist-item" data-i="${i}">
+        <div class="hist-expr">${item.expr} =</div>
+        <div class="hist-result">${item.result}</div>
+      </div>`
+    ).join("");
+    histClear.style.display="block";
+    histInner.scrollTop = histInner.scrollHeight;
+  }
+  // badge
+  const badge = histBtn.querySelector(".hist-badge");
+  if(history.length>0){
+    if(!badge){
+      const b=document.createElement("span");
+      b.className="hist-badge";
+      b.textContent=history.length;
+      histBtn.appendChild(b);
+    } else { badge.textContent=history.length; }
+  } else if(badge) badge.remove();
+}
+
+histInner.addEventListener("click",e=>{
+  const item=e.target.closest(".hist-item");
+  if(!item) return;
+  const i=parseInt(item.dataset.i);
+  display=history[i].result;
+  resetNext=true;
+  render();
+  histPanel.classList.remove("open");
+  histBtn.classList.remove("active");
+  showHistory=false;
+});
+
+histBtn.addEventListener("click",()=>{
+  showHistory=!showHistory;
+  histPanel.classList.toggle("open",showHistory);
+  histBtn.classList.toggle("active",showHistory);
+  if(showHistory) renderHistory();
+});
+
+histClear.addEventListener("click",()=>{
+  history=[];
+  renderHistory();
+});
+
+// Copy
+copyBtn.addEventListener("click",()=>{
+  navigator.clipboard?.writeText(display).then(()=>{
+    haptic("medium");
+    copyBtn.textContent="✓ copiado";
+    copyBtn.classList.add("copied");
+    setTimeout(()=>{ copyBtn.textContent="copiar"; copyBtn.classList.remove("copied"); },1500);
+  });
+});
+
+// Swipe to delete
+screen.addEventListener("touchstart",e=>{ touchStartX=e.touches[0].clientX; },{passive:true});
+screen.addEventListener("touchend",e=>{
+  if(touchStartX===null) return;
+  const diff=touchStartX-e.changedTouches[0].clientX;
+  if(diff>40){
+    haptic("light");
+    if(display.length<=1||(display.length===2&&display.startsWith("-"))) display="0";
+    else display=display.slice(0,-1);
+    render();
+  }
+  touchStartX=null;
+});
+
+// Handle button press
+function handle(key){
+  haptic(key==="="?"medium":key==="AC"?"heavy":"light");
+
+  if(key==="AC"){ display="0"; prev=null; op=null; resetNext=false; expression=""; render(); return; }
+
+  if(key==="+/-"){
+    if(display.startsWith("-")) display=display.slice(1);
+    else if(display!=="0") display="-"+display;
+    render(); return;
+  }
+
+  if(key==="%"){
+    const cur=parseFloat(display);
+    if(prev!==null&&(op==="+"||op==="−")) display=fmt((parseFloat(prev)*cur)/100);
+    else display=fmt(cur/100);
+    render(); return;
+  }
+
+  if(OPS.includes(key)){
+    if(op&&!resetNext){
+      const r=compute(prev,display,op);
+      display=fmt(r); prev=fmt(r); expression=fmt(r)+" "+key;
+    } else { prev=display; expression=display+" "+key; }
+    op=key; resetNext=true; render(); return;
+  }
+
+  if(key==="="){
+    if(op&&prev!==null){
+      const result=compute(prev,display,op);
+      const expr=prev+" "+op+" "+display;
+      const rs=fmt(result);
+      expression=expr+" ="; display=rs;
+      history=history.slice(-49).concat({expr,result:rs});
+      prev=null; op=null; resetNext=true;
+      render(); bounce();
+    }
+    return;
+  }
+
+  if(key==="."){
+    const base=resetNext?"0":display;
+    if(!base.includes(".")) display=base+".";
+    resetNext=false; render(); return;
+  }
+
+  // digit
+  if(resetNext){ display=key; resetNext=false; }
+  else if(display==="0") display=key;
+  else if(display.replace("-","").replace(".","").length<10) display+=key;
+  render();
+}
+
+// Build grid
+BUTTONS.forEach(row=>{
+  row.forEach(key=>{
+    const btn=document.createElement("button");
+    const isZero=key==="0";
+    const isOp=OPS.includes(key)||key==="=";
+    const isFunc=["AC","+/-","%"].includes(key);
+    btn.className="btn "+(isOp?"btn-op":isFunc?"btn-func":"btn-num")+(isZero?" btn-zero":"");
+    btn.textContent=key;
+    btn.dataset.key=key;
+    if(isZero) btn.style.gridColumn="span 2";
+    btn.addEventListener("click",()=>{ addRipple(btn); handle(key); updateActiveOp(); });
+    grid.appendChild(btn);
+  });
+});
+
+function updateActiveOp(){
+  grid.querySelectorAll(".btn-op").forEach(b=>{
+    b.classList.toggle("active", b.dataset.key===op && resetNext);
+  });
+}
+
+// Keyboard support
+window.addEventListener("keydown",e=>{
+  if(e.key>="0"&&e.key<="9") handle(e.key);
+  else if(e.key==="+") handle("+");
+  else if(e.key==="-") handle("−");
+  else if(e.key==="*") handle("×");
+  else if(e.key==="/"){ e.preventDefault(); handle("÷"); }
+  else if(e.key==="%") handle("%");
+  else if(e.key==="."||e.key===",") handle(".");
+  else if(e.key==="Enter"||e.key==="=") handle("=");
+  else if(e.key==="Backspace"){
+    if(display.length<=1||(display.length===2&&display.startsWith("-"))) display="0";
+    else display=display.slice(0,-1);
+    render();
+  }
+  else if(e.key==="Escape") handle("AC");
+  updateActiveOp();
+});
+
+render();
+</script>
+
+</body>
+</html>
