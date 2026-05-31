@@ -13,7 +13,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
-html,body{width:100%;height:100%;overflow:hidden;background:#0e0e0e;}
+html,body{width:100%;height:100%;overflow:hidden;background:#0e0e0e;touch-action:manipulation;-webkit-text-size-adjust:100%;}
 
 /* GRADIENT BORDER WRAPPER */
 #outer{
@@ -30,11 +30,12 @@ html,body{width:100%;height:100%;overflow:hidden;background:#0e0e0e;}
 }
 
 /* ORBS */
-.orb{position:fixed;border-radius:50%;filter:blur(80px);opacity:.45;pointer-events:none;animation:drift 8s ease-in-out infinite alternate;}
+.orb{position:fixed;border-radius:50%;filter:blur(60px);opacity:.45;pointer-events:none;animation:drift 8s ease-in-out infinite alternate;will-change:transform;transform:translateZ(0);backface-visibility:hidden;}
 .orb1{width:300px;height:300px;background:#c9a000;top:-80px;left:-60px;animation-duration:9s;}
 .orb2{width:250px;height:250px;background:#444;bottom:-60px;right:-60px;animation-duration:11s;animation-delay:-3s;}
 .orb3{width:180px;height:180px;background:#1a1a1a;top:45%;left:55%;animation-duration:7s;animation-delay:-5s;}
-@keyframes drift{from{transform:translate(0,0);}to{transform:translate(25px,18px);}}
+@keyframes drift{from{transform:translate3d(0,0,0);}to{transform:translate3d(25px,18px,0);}}
+@media(prefers-reduced-motion:reduce){.orb{animation:none;}}
 
 /* TITLE */
 #titleRow{
@@ -90,6 +91,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#0e0e0e;}
   padding-bottom:env(safe-area-inset-bottom,10px);
   flex:1;
   min-height:0;
+  contain:layout style;
 }
 
 /* BUTTONS */
@@ -105,6 +107,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#0e0e0e;}
   position:relative;overflow:hidden;outline:none;
   transition:transform .08s, box-shadow .08s;
   -webkit-user-select:none;user-select:none;
+  touch-action:pan-x;
 }
 .btn:active{
   transform:translateY(3px) scale(.97);
@@ -175,6 +178,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#0e0e0e;}
   position:relative;overflow:hidden;
   transition:transform .08s, box-shadow .08s;
   box-shadow:0 3px 0 rgba(15,10,0,.9),inset 0 1px 0 rgba(255,220,80,.1);
+  touch-action:pan-x;-webkit-user-select:none;user-select:none;
 }
 .bs:active{transform:translateY(2px) scale(.97);box-shadow:none;}
 
@@ -318,7 +322,7 @@ var DLBL={sqrt:"\u221a","x2":"x\u00b2","(":"(",")":")","/":"\u00f7","*":"\u00d7"
 // \u2500\u2500 STATE \u2500\u2500
 var expr='',justEvaled=false,lastResult='0',lastExpr='',openParens=0;
 var sciMode=false,showHist=false;
-var txStart=null,tyStart=null;
+var txStart=null,tyStart=null,swiping=false,exprAtTouch='',justEvaledAtTouch=false,openParensAtTouch=0;
 var calcHist=[];
 try{calcHist=JSON.parse(localStorage.getItem('ch3')||'[]').filter(function(h){return h&&h.expr&&h.result;});}catch(e){}
 var cfg={vib:true,wake:false,dec:'comma',thou:'dot',dp:'auto',theme:'dark'};
@@ -412,7 +416,7 @@ function getExprTxt(){
   return'';
 }
 
-var _raf=false;
+var _raf=false,_obsCache=null;
 function render(){
   if(_raf)return;_raf=true;
   requestAnimationFrame(function(){
@@ -430,8 +434,9 @@ function render(){
       if(r!==null&&r!=='Err'&&fmtN(r)!==mn){liveEl.textContent='= '+fmtD(fmtN(r));liveEl.className='on';}
       else{liveEl.textContent='';liveEl.className='';}
     }else{liveEl.textContent='';liveEl.className='';}
-    var obs=grid.querySelectorAll('.bo');
-    for(var i=0;i<obs.length;i++){obs[i].classList.toggle('act',!justEvaled&&expr.length>0&&expr[expr.length-1]===obs[i].dataset.raw);}
+    if(!_obsCache)_obsCache=grid.querySelectorAll('.bo');
+    var last=expr.length>0?expr[expr.length-1]:null;
+    for(var i=0;i<_obsCache.length;i++){_obsCache[i].classList.toggle('act',!justEvaled&&last===_obsCache[i].dataset.raw);}
   });
 }
 
@@ -700,10 +705,20 @@ function handle(key){
 
 // \u2500\u2500 BUILD GRID \u2500\u2500
 function btype(k){if(OPS.indexOf(k)>=0||k==='=')return'bo';if(k==='AC'||k==='+/-'||k==='%')return'bf';if(k==='sqrt'||k==='x2'||k==='('||k===')')return'bx';if(k==='back')return'bb';return'bn';}
-function addRipple(b){var r=document.createElement('span');r.className='ripple';b.appendChild(r);setTimeout(function(){r.remove();},350);}
+function addRipple(b){
+  var r=b._ripple;
+  if(!r){
+    r=document.createElement('span');r.className='ripple';b._ripple=r;
+    r.addEventListener('animationend',function(){if(r.parentNode)r.parentNode.removeChild(r);});
+  }else{
+    if(r.parentNode)r.parentNode.removeChild(r);
+    void r.offsetWidth;
+  }
+  b.appendChild(r);
+}
 
 function buildGrid(){
-  grid.innerHTML='';
+  grid.innerHTML='';_obsCache=null;
   for(var ri=0;ri<BASIC.length;ri++){
     for(var ci=0;ci<BASIC[ri].length;ci++){
       var key=BASIC[ri][ci];
@@ -711,7 +726,7 @@ function buildGrid(){
       btn.className='btn '+btype(key);
       btn.textContent=DLBL[key]||key;
       btn.dataset.raw=key;
-      (function(k){btn.addEventListener('click',function(){addRipple(this);handle(k);});})(key);
+      (function(k){btn.addEventListener('pointerdown',function(e){e.preventDefault();addRipple(this);});btn.addEventListener('pointerup',function(e){if(swiping)return;handle(k);});})(key);
       grid.appendChild(btn);
     }
   }
@@ -725,7 +740,7 @@ function buildSci(){
       var key=SCI[ri][ci];
       var btn=document.createElement('button');
       btn.className='bs';btn.textContent=sl[key]||key;
-      (function(k){btn.addEventListener('click',function(){addRipple(this);handleSci(k);});})(key);
+      (function(k){btn.addEventListener('pointerdown',function(e){e.preventDefault();addRipple(this);});btn.addEventListener('pointerup',function(e){if(swiping)return;handleSci(k);});})(key);
       sciRow.appendChild(btn);
     }
   }
@@ -740,7 +755,14 @@ modeBtn.addEventListener('click',function(){
 document.addEventListener('touchstart',function(e){
   if(e.target.closest('.panel'))return;
   if(e.target.tagName==='INPUT'||e.target.tagName==='SELECT')return;
-  txStart=e.touches[0].clientX;tyStart=e.touches[0].clientY;
+  txStart=e.touches[0].clientX;tyStart=e.touches[0].clientY;swiping=false;
+  exprAtTouch=expr;justEvaledAtTouch=justEvaled;openParensAtTouch=openParens;
+},{passive:true});
+document.addEventListener('touchmove',function(e){
+  if(txStart===null)return;
+  var dx=Math.abs(e.touches[0].clientX-txStart);
+  var dy=Math.abs(e.touches[0].clientY-tyStart);
+  if(!swiping&&dx>12&&dx>dy)swiping=true;
 },{passive:true});
 document.addEventListener('touchend',function(e){
   if(txStart===null)return;
@@ -748,6 +770,7 @@ document.addEventListener('touchend',function(e){
   var dy=Math.abs(e.changedTouches[0].clientY-(tyStart||0));
   if(dx>55&&dx>dy*1.8){hap('lt');bksp();render();}
   txStart=null;tyStart=null;
+  setTimeout(function(){swiping=false;},0);
 });
 
 // \u2500\u2500 KEYBOARD \u2500\u2500
