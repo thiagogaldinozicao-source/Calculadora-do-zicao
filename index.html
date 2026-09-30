@@ -145,7 +145,8 @@ svg{display:block;}
 .mok{background:#e5484d;color:#fff;}
 #toast{position:absolute;left:50%;bottom:calc(max(env(safe-area-inset-bottom),14px) + 12px);transform:translate(-50%,16px);opacity:0;pointer-events:none;z-index:60;background:rgba(24,24,26,.95);border:1px solid rgba(255,255,255,.12);color:#fff;font-size:12px;font-weight:700;padding:9px 16px;border-radius:20px;transition:opacity .2s,transform .25s;white-space:nowrap;box-shadow:0 8px 24px rgba(0,0,0,.4);}
 #toast.on{opacity:1;transform:translate(-50%,0);}
-.hap{position:fixed;left:-9999px;top:0;width:1px;height:1px;opacity:0;pointer-events:none;}
+.hsw{position:absolute;visibility:hidden;width:0;height:0;margin:0;pointer-events:none;}
+label.btn,label.bs{cursor:pointer;}
 
 @media(prefers-reduced-motion:reduce){.orb,.tdot,#screen.flash::after,#numDisp.err,#numDisp.bnc{animation:none;}}
 </style>
@@ -359,22 +360,16 @@ function render(){
   });
 }
 
-// ── VIBRAÇÃO (Android: vibrate / iPhone: switch nativo do iOS 18+) ──
-var _hLbl=null;
-function iosTap(){
-  if(!_hLbl){
-    _hLbl=document.createElement('label');_hLbl.className='hap';_hLbl.setAttribute('aria-hidden','true');
-    var i=document.createElement('input');i.type='checkbox';i.setAttribute('switch','');i.tabIndex=-1;
-    _hLbl.appendChild(i);document.body.appendChild(_hLbl);
-  }
-  _hLbl.click();
-}
+// ── VIBRAÇÃO ──
+// iPhone: cada tecla é um <label> com <input switch> escondido — o toque real do dedo gera o tato nativo (iOS 18+ / 26.5+).
+// Android: navigator.vibrate.
 function hap(s){
-  if(!cfg.vib)return;
-  if(navigator.vibrate){try{navigator.vibrate(s==='hvy'?40:s==='med'?20:10);}catch(e){}return;}
-  try{iosTap();}catch(e){}
+  if(!cfg.vib||!navigator.vibrate)return;
+  try{navigator.vibrate(s==='hvy'?40:s==='med'?20:10);}catch(e){}
 }
-
+function hapSw(){var d=!cfg.vib,l=document.querySelectorAll('.hsw');for(var i=0;i<l.length;i++)l[i].disabled=d;}
+function mkKey(cls){var b=document.createElement('label');b.className=cls;b.setAttribute('role','button');return b;}
+function addSw(b){var i=document.createElement('input');i.type='checkbox';i.setAttribute('switch','');i.className='hsw';i.tabIndex=-1;i.setAttribute('aria-hidden','true');i.disabled=!cfg.vib;b.appendChild(i);}
 // ── TOAST / MODAL / UTIL ──
 var _tt=null;
 function toast(msg){toastEl.textContent=msg;toastEl.classList.add('on');clearTimeout(_tt);_tt=setTimeout(function(){toastEl.classList.remove('on');},1500);}
@@ -524,7 +519,7 @@ $('cfgBtn').addEventListener('click',function(){
   $('cDec').value=cfg.dec;$('cThou').value=cfg.thou;$('cDPlaces').value=cfg.dp;
   applyTheme();cfgPanel.classList.add('on');
 });
-$('cVib').addEventListener('change',function(){cfg.vib=this.checked;saveC();if(cfg.vib)hap('med');});
+$('cVib').addEventListener('change',function(){cfg.vib=this.checked;saveC();hapSw();if(cfg.vib)hap('med');});
 $('cWake').addEventListener('change',function(){cfg.wake=this.checked;setWL(this.checked);saveC();});
 $('cDec').addEventListener('change',function(){cfg.dec=this.value;saveC();buildGrid();render();});
 $('cThou').addEventListener('change',function(){cfg.thou=this.value;saveC();render();});
@@ -641,12 +636,11 @@ function buildGrid(){
   for(var ri=0;ri<BASIC.length;ri++){
     for(var ci=0;ci<BASIC[ri].length;ci++){
       var key=BASIC[ri][ci];
-      var btn=document.createElement('button');
-      btn.className='btn '+btype(key);
+      var btn=mkKey('btn '+btype(key));
       if(key==='back')btn.innerHTML=BACK_SVG;
       else btn.textContent=key==='.'?(cfg.dec==='comma'?',':'.'):(DLBL[key]||key);
       if(ARIA[key])btn.setAttribute('aria-label',ARIA[key]);
-      btn.dataset.raw=key;
+      btn.dataset.raw=key;addSw(btn);
       (function(k){
         var lpT=null,lpDone=false;
         btn.addEventListener('pointerdown',function(e){e.preventDefault();addRipple(this);
@@ -665,8 +659,7 @@ function buildSci(){
   for(var ri=0;ri<SCI.length;ri++){
     for(var ci=0;ci<SCI[ri].length;ci++){
       var key=SCI[ri][ci];
-      var btn=document.createElement('button');
-      btn.className='bs';btn.textContent=sl[key]||key;
+      var btn=mkKey('bs');btn.textContent=sl[key]||key;addSw(btn);
       (function(k){btn.addEventListener('pointerdown',function(e){e.preventDefault();addRipple(this);});btn.addEventListener('pointerup',function(){if(swiping)return;handleSci(k);});})(key);
       sciRow.appendChild(btn);
     }
