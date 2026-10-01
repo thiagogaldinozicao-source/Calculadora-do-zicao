@@ -542,9 +542,15 @@ function ac(){
   if(_ac.state!=='running')_ac.resume().catch(function(){});
   return _ac;
 }
-document.addEventListener('pointerdown',function(){if(cfg.som)ac();},{passive:true,capture:true});
-document.addEventListener('keydown',function(){if(cfg.som)ac();},{capture:true});
-document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible'&&_ac&&_ac.state!=='running')_ac.resume().catch(function(){});});
+// iPhone: só libera o áudio dentro de um toque "de verdade" (touchend/click). Toca um silêncio de 1 amostra pra destravar.
+var _unlocked=false;
+function unlockAudio(){
+  if(!cfg.som)return;var c=ac();if(!c)return;
+  if(c.state!=='running')c.resume().catch(function(){});
+  if(!_unlocked){try{var b=c.createBuffer(1,1,22050),src=c.createBufferSource();src.buffer=b;src.connect(c.destination);src.start(0);_unlocked=true;}catch(e){}}
+}
+['touchstart','touchend','pointerdown','pointerup','mousedown','click','keydown'].forEach(function(ev){document.addEventListener(ev,unlockAudio,{passive:true,capture:true});});
+document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible'&&_ac&&_ac.state!=='running'){_ac.resume().catch(function(){});_unlocked=false;}});
 function tn(f,d,o){o=o||{};var c=ac();if(!c)return;
   var t=c.currentTime+(o.at||0),os=c.createOscillator(),g=c.createGain(),v=o.v==null?.4:o.v;
   os.type=o.w||'sine';os.frequency.setValueAtTime(f,t);if(o.to)os.frequency.exponentialRampToValueAtTime(o.to,t+d);
@@ -1158,7 +1164,7 @@ document.addEventListener('paste',function(e){
 // ── INÍCIO ──
 buildThemes();applyTheme();if(cfg.wake)setWL(true);
 buildGrid();buildSci();setMode(!!cfg.sci);render();renderBadge();renderMem();
-if('serviceWorker' in navigator&&!NATIVE&&/^https?:$/.test(location.protocol)){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){});});}
+if('serviceWorker' in navigator&&!NATIVE&&/^https?:$/.test(location.protocol)){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').then(function(r){r.update();}).catch(function(){});var _t0=Date.now(),_had=!!navigator.serviceWorker.controller;navigator.serviceWorker.addEventListener('controllerchange',function(){if(_had&&Date.now()-_t0<15000&&!window._rl){window._rl=1;location.reload();}});});}
 </script>
 </body>
 </html>
