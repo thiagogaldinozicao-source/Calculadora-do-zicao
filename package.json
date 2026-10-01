@@ -1,0 +1,20 @@
+{
+  "name": "calculadora-do-zicao",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Calculadora do Zicão — web (PWA) e iOS (Capacitor)",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "icones": "npx @capacitor/assets generate --ios --iconBackgroundColor '#0e0e0e' --splashBackgroundColor '#0e0e0e' --splashBackgroundColorDark '#0e0e0e'",
+    "ios": "npm run build && npx cap sync ios && npx cap open ios"
+  },
+  "dependencies": {
+    "@capacitor/core": "^8.5.2",
+    "@capacitor/ios": "^8.5.2",
+    "@capacitor/haptics": "^8.0.2"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^8.5.2",
+    "@capacitor/assets": "^3.0.5"
+  }
+}
