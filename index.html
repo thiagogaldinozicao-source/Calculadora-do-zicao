@@ -215,6 +215,18 @@ svg{display:block;}
 .mcancel{background:rgba(var(--fg),.08);color:rgba(var(--fg),.8);}
 .mok{background:#e5484d;color:#fff;}
 #toast{position:absolute;left:50%;bottom:calc(max(env(safe-area-inset-bottom),14px) + 12px);transform:translate(-50%,16px);opacity:0;pointer-events:none;z-index:60;background:rgba(24,24,26,.95);border:1px solid rgba(var(--fg),.12);color:#fff;font-size:12px;font-weight:700;padding:9px 16px;border-radius:20px;transition:opacity .2s,transform .25s;white-space:nowrap;box-shadow:0 8px 24px rgba(0,0,0,.4);}
+#tut{position:absolute;inset:0;z-index:80;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.72);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);padding:24px;touch-action:none;}
+#tut.on{display:flex;animation:tutIn .3s ease;}
+@keyframes tutIn{from{opacity:0}to{opacity:1}}
+.tbox{width:100%;max-width:330px;background:rgba(28,28,30,.97);border:1px solid rgba(255,255,255,.1);border-radius:24px;padding:26px 22px 20px;text-align:center;color:#fff;font-family:'Syne',sans-serif;box-shadow:0 20px 50px rgba(0,0,0,.5);}
+.ttitle{font-size:20px;font-weight:800;margin-bottom:6px;}
+.tmsg{font-size:14px;line-height:1.45;opacity:.8;margin-bottom:18px;}
+.tdemo{position:relative;height:84px;border-radius:16px;background:rgba(255,255,255,.06);overflow:hidden;margin-bottom:18px;}
+.tnum{position:absolute;right:18px;top:12px;font-family:'DM Mono',monospace;font-size:38px;font-weight:300;}
+.thand{position:absolute;top:34px;right:10px;font-size:34px;animation:tSw 1.6s ease-in-out infinite;}
+@keyframes tSw{0%{transform:translateX(0);opacity:0}15%{opacity:1}70%{transform:translateX(-150px);opacity:1}100%{transform:translateX(-170px);opacity:0}}
+.tok{width:100%;border:0;border-radius:14px;padding:13px;font:700 15px 'Syne',sans-serif;background:#fff;color:#111;}
+.tsub{font-size:12px;opacity:.5;margin-top:10px;}
 #toast.on{opacity:1;transform:translate(-50%,0);}
 .hsw{position:absolute;visibility:hidden;width:0;height:0;margin:0;pointer-events:none;}
 label.btn,label.bs{cursor:pointer;}
@@ -367,6 +379,16 @@ label.btn,label.bs{cursor:pointer;}
       <div class="mtitle" id="mTitle"></div>
       <div class="mmsg" id="mMsg"></div>
       <div class="mrow"><button class="mcancel" id="mCancel">Cancelar</button><button class="mok" id="mOk">OK</button></div>
+    </div>
+  </div>
+
+  <div id="tut">
+    <div class="tbox">
+      <div class="ttitle">Bem-vindo! 👋</div>
+      <div class="tmsg">Errou um número? Não precisa caçar botão:<br><b>arrasta o dedo pra esquerda</b> em qualquer lugar da tela que ele apaga.</div>
+      <div class="tdemo"><div class="tnum" id="tNum">1.234</div><div class="thand">👆</div></div>
+      <button class="tok" id="tOk">Entendi</button>
+      <div class="tsub">ou testa aí: arrasta pra esquerda 😉</div>
     </div>
   </div>
 
@@ -1108,7 +1130,7 @@ $('modeSeg').addEventListener('click',function(e){var b=e.target.closest('button
 
 // ── DESLIZAR PRA APAGAR ──
 document.addEventListener('touchstart',function(e){
-  if(e.target.closest('.panel')||e.target.closest('.modal'))return;
+  if(e.target.closest('.panel')||e.target.closest('.modal')||e.target.closest('#tut'))return;
   if(e.target.tagName==='INPUT'||e.target.tagName==='SELECT')return;
   txStart=e.touches[0].clientX;tyStart=e.touches[0].clientY;swiping=false;window._armed=false;
   exprAtTouch=expr;justEvaledAtTouch=justEvaled;openParensAtTouch=openParens;
@@ -1160,6 +1182,19 @@ document.addEventListener('paste',function(e){
   var v=parseBR((e.clipboardData||window.clipboardData).getData('text'));if(v===null)return;
   e.preventDefault();snd('pop');insertNum(v);toast('Colado: '+fmtD(fmtN(v),true));
 });
+
+// ── TUTORIAL (1ª vez) ──
+(function(){
+  var seen=false;try{seen=localStorage.getItem('tut1')==='1';}catch(e){}
+  if(seen)return;
+  var tut=$('tut'),nEl=$('tNum'),seq=['1.234','123','12','1'],i=0,iv,x0=null;
+  tut.classList.add('on');
+  iv=setInterval(function(){i=(i+1)%seq.length;nEl.textContent=seq[i];},1600);
+  function fechar(){clearInterval(iv);tut.classList.remove('on');try{localStorage.setItem('tut1','1');}catch(e){}}
+  $('tOk').addEventListener('click',function(){hap('lt');snd('close');fechar();});
+  tut.addEventListener('touchstart',function(e){x0=e.touches[0].clientX;},{passive:true});
+  tut.addEventListener('touchend',function(e){if(x0===null)return;var d=x0-e.changedTouches[0].clientX;x0=null;if(d>55){hap('lt');snd('del');fechar();toast('Isso aí! 👊');}});
+})();
 
 // ── INÍCIO ──
 buildThemes();applyTheme();if(cfg.wake)setWL(true);
