@@ -1,11 +1,19 @@
 {
   "appId": "br.com.zicaostore.calculadora",
-  "appName": "Calculadora do Zicão",
+  "appName": "Calculadora do Zic\u00e3o",
   "webDir": "www",
   "backgroundColor": "#0e0e0e",
   "ios": {
     "contentInset": "never",
     "scrollEnabled": false,
     "backgroundColor": "#0e0e0e"
+  },
+  "android": {
+    "backgroundColor": "#0e0e0e"
+  },
+  "plugins": {
+    "SystemBars": {
+      "style": "LIGHT"
+    }
   }
 }

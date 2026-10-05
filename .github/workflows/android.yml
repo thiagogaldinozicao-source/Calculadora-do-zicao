@@ -1,0 +1,70 @@
+name: App Android (APK)
+
+on:
+  push:
+    branches: [main]
+    paths-ignore: ['**.md']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: android-apk
+  cancel-in-progress: true
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - uses: android-actions/setup-android@v3
+
+      - name: Instalar dependências
+        run: npm install --no-audit --no-fund
+
+      - name: Montar app web (www/)
+        run: npm run build
+
+      - name: Criar projeto Android
+        run: npx cap add android
+
+      - name: Ícone e tela de abertura
+        run: npx @capacitor/assets generate --android --iconBackgroundColor '#0e0e0e' --splashBackgroundColor '#0e0e0e' --splashBackgroundColorDark '#0e0e0e'
+
+      - name: Sincronizar
+        run: npx cap sync android
+
+      - name: Versão (sobe sozinha a cada build)
+        run: |
+          sed -i -E "s/versionCode [0-9]+/versionCode ${GITHUB_RUN_NUMBER}/; s/versionName \"[^\"]*\"/versionName \"1.${GITHUB_RUN_NUMBER}\"/" android/app/build.gradle
+          grep -E "versionCode|versionName" android/app/build.gradle
+
+      - name: Chave de assinatura (mesma sempre, pra atualizar por cima)
+        run: mkdir -p ~/.android && cp android-keystore/zicao.keystore ~/.android/debug.keystore
+
+      - name: Gerar APK
+        run: cd android && chmod +x gradlew && ./gradlew assembleDebug --no-daemon
+
+      - run: cp android/app/build/outputs/apk/debug/app-debug.apk calculadora-zicao.apk
+
+      - name: Publicar no GitHub (Releases)
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: android
+          name: Calculadora do Zicão — Android
+          body: |
+            Versão 1.${{ github.run_number }}
+            Baixe o **calculadora-zicao.apk** no celular Android e instale.
+          files: calculadora-zicao.apk
+          make_latest: true
