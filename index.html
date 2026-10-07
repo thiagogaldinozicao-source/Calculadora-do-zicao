@@ -29,7 +29,7 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer;out
 svg{display:block;}
 
 /* ── MOLDURA ── */
-#outer{position:fixed;inset:0;background:var(--brd);padding:2px;}
+#outer{position:fixed;inset:0;height:100vh;height:100lvh;background:var(--brd);padding:2px;}
 #app{position:absolute;inset:2px;display:flex;flex-direction:column;background:var(--bg);overflow:hidden;container-type:inline-size;}
 @media(min-width:520px) and (min-height:560px){
   #outer{position:relative;inset:auto;width:min(420px,96vw);height:min(880px,96vh);border-radius:34px;box-shadow:0 30px 80px rgba(0,0,0,.6),0 0 0 1px rgba(var(--fg),.04);}
@@ -1210,6 +1210,18 @@ if(NATIVE){try{var AP=window.Capacitor.Plugins.App;if(AP)AP.addListener('backBut
   if(showHist){snd('close');closeHist();return;}
   AP.exitApp();
 });}catch(e){}}
+
+// iPhone (app na tela inicial): o iOS às vezes deixa uma faixa vazia embaixo; força a altura da tela inteira.
+var outerEl=$('outer');
+function fitHeight(){
+  if(matchMedia('(min-width:520px) and (min-height:560px)').matches){outerEl.style.height='';outerEl.style.bottom='';return;}
+  var h=window.innerHeight;
+  if(navigator.standalone){var land=Math.abs(window.orientation||0)===90;h=Math.max(h,land?Math.min(screen.width,screen.height):Math.max(screen.width,screen.height));}
+  outerEl.style.bottom='auto';outerEl.style.height=h+'px';
+}
+fitHeight();
+window.addEventListener('resize',fitHeight);
+window.addEventListener('orientationchange',function(){setTimeout(fitHeight,250);});
 
 // ── INÍCIO ──
 buildThemes();applyTheme();if(cfg.wake)setWL(true);
