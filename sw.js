@@ -1,5 +1,5 @@
 // Offline: guarda o app no aparelho e atualiza em segundo plano (vale na próxima abertura).
-const CACHE = 'calc-v8';
+const CACHE = 'calc-v9';
 const SHELL = ['./', './index.html', './manifest.webmanifest', './icons/favicon.svg', './icons/favicon-32.png', './icons/apple-touch-icon.png', './icons/icon-192.png', './icons/icon-512.png',
   './fonts/syne-latin-400-normal.woff2', './fonts/syne-latin-600-normal.woff2', './fonts/syne-latin-700-normal.woff2', './fonts/syne-latin-800-normal.woff2',
   './fonts/dm-mono-latin-300-normal.woff2', './fonts/dm-mono-latin-400-normal.woff2', './fonts/dm-mono-latin-500-normal.woff2'];

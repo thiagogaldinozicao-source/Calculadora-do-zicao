@@ -421,28 +421,43 @@ var histPanel=$('histPanel'),cfgPanel=$('cfgPanel'),histBtn=$('histBtn'),hBody=$
 var badge=histBtn.querySelector('.hbadge'),screenEl=$('screen'),toastEl=$('toast');
 
 // ── MATEMÁTICA ──
-function dc(n){var s=n.toString(),i=s.indexOf('.');return i<0?0:s.length-i-1;}
+function dc(n){var s=n.toString(),e=s.indexOf('e'),x=0;if(e>=0){x=+s.slice(e+1);s=s.slice(0,e);}var i=s.indexOf('.');return Math.max(0,(i<0?0:s.length-i-1)-x);}
 function prec(a,b,op){
   if(op==='/')return b?a/b:NaN;
-  var f=Math.pow(10,Math.max(dc(a),dc(b)));
+  var d=Math.max(dc(a),dc(b));
+  if(d>15)return op==='+'?a+b:op==='-'?a-b:op==='*'?a*b:NaN;
+  var f=Math.pow(10,d);
   var A=Math.round(a*f),B=Math.round(b*f);
   if(op==='+')return(A+B)/f;if(op==='-')return(A-B)/f;if(op==='*')return(A*B)/(f*f);return NaN;
 }
 function fact(n){n=Math.round(n);if(n<0||n>170)return NaN;var r=1;for(var i=2;i<=n;i++)r*=i;return r;}
 function fmtN(n){
   if(!isFinite(n)||isNaN(n))return'Err';
-  var s=parseFloat(n.toString());
-  if(Math.abs(s)>=1e12)return s.toExponential(3);
-  var r=parseFloat(s.toPrecision(10));
-  var str=r.toString();
-  return str.length>12?parseFloat(s.toPrecision(9)).toString():str;
+  var s=parseFloat(n.toString()),a=Math.abs(s);
+  if(!a)return'0';
+  var id=a>=1?Math.floor(Math.log10(a))+1:0,p=Math.min(15,Math.max(10,id+2));
+  var str=plain(parseFloat(s.toPrecision(p)));
+  return p===10&&a>=1e-6&&str.length>12?plain(parseFloat(s.toPrecision(9))):str;
 }
+// tira a notação científica (1e+21, 3.3e-7) pra expressão nunca quebrar
+function plain(x){
+  var s=String(x),m=s.match(/^(-?)(\d+)\.?(\d*)e([+-]?\d+)$/);if(!m)return s;
+  var d=m[2]+m[3],p=m[2].length+(+m[4]);
+  if(p<=0)return m[1]+'0.'+new Array(1-p).join('0')+d;
+  if(p>=d.length)return m[1]+d+new Array(p-d.length+1).join('0');
+  return m[1]+d.slice(0,p)+'.'+d.slice(p);
+}
+// seno/cosseno em graus sem "sujeira" (cos 90 = 0, sin 180 = 0)
+function sinD(v){var r=Math.sin((v%360)*Math.PI/180);return Math.abs(r)<1e-14?0:r;}
+function cosD(v){var r=Math.cos((v%360)*Math.PI/180);return Math.abs(r)<1e-14?0:r;}
+function tanD(v){var c=cosD(v);return c?sinD(v)/c:NaN;}
 // isRes=true só pra resultado (casas fixas não atrapalham enquanto digita)
 function fmtD(n,isRes){
   if(n==='Err')return'Erro';
   if(n==='-')return n;
   n=String(n);
   if(n.indexOf('e')>=0){return n.replace('.',cfg.dec==='comma'?',':'.');}
+  if(isRes){var big=Math.abs(parseFloat(n));if(big>=1e15||(big>0&&big<1e-6))return parseFloat(big.toPrecision(10)).toExponential().replace('.',cfg.dec==='comma'?',':'.').replace(/^/,n[0]==='-'?'−':'');}
   var neg=n[0]==='-',abs=neg?n.slice(1):n;
   if(isRes&&cfg.dp!=='auto'){var num=parseFloat(abs);if(!isNaN(num))abs=num.toFixed(parseInt(cfg.dp));}
   var pts=abs.split('.');
@@ -466,7 +481,7 @@ function safeEval(e){
          .replace(/log\(/g,'LG(').replace(/ln\(/g,'LN(').replace(/abs\(/g,'AB(')
          .replace(/10x\(/g,'TX(').replace(/ex\(/g,'EX(').replace(/x!\(/g,'FC(').replace(/mod/g,'%');
   var pos=0;
-  var fns={'S(':function(v){return v>=0?Math.sqrt(v):NaN;},'SN(':function(v){return Math.sin(v*Math.PI/180);},'CS(':function(v){return Math.cos(v*Math.PI/180);},'TN(':function(v){return Math.tan(v*Math.PI/180);},'ASN(':function(v){return Math.asin(v)*180/Math.PI;},'ACS(':function(v){return Math.acos(v)*180/Math.PI;},'ATN(':function(v){return Math.atan(v)*180/Math.PI;},'LG(':function(v){return Math.log10(v);},'LN(':function(v){return Math.log(v);},'AB(':function(v){return Math.abs(v);},'TX(':function(v){return Math.pow(10,v);},'EX(':function(v){return Math.exp(v);},'FC(':function(v){return fact(v);}};
+  var fns={'S(':function(v){return v>=0?Math.sqrt(v):NaN;},'SN(':sinD,'CS(':cosD,'TN(':tanD,'ASN(':function(v){return Math.asin(v)*180/Math.PI;},'ACS(':function(v){return Math.acos(v)*180/Math.PI;},'ATN(':function(v){return Math.atan(v)*180/Math.PI;},'LG(':function(v){return Math.log10(v);},'LN(':function(v){return Math.log(v);},'AB(':function(v){return Math.abs(v);},'TX(':function(v){return Math.pow(10,v);},'EX(':function(v){return Math.exp(v);},'FC(':function(v){return fact(v);}};
   var ks=Object.keys(fns);
   function pk(){return pos<s.length?s[pos]:null;}
   function primary(){
@@ -668,7 +683,7 @@ hBody.addEventListener('click',function(e){
   var b=e.target.closest('button[data-a]');if(!b)return;
   var card=b.closest('.hi'),idx=+card.dataset.i,h=calcHist[idx];if(!h)return;
   var a=b.dataset.a;hap('lt');snd(a==='use'?'pop':a==='cpy'?'copy':a==='del'?'del':'fn');
-  if(a==='use'){expr=h.result;justEvaled=true;lastResult=h.result;lastExpr=h.expr.replace(/ =$/,'');openParens=0;render();closeHist();return;}
+  if(a==='use'){var hr=plain(h.result);expr=hr;justEvaled=true;lastResult=hr;lastExpr=h.expr.replace(/ =$/,'');openParens=0;render();closeHist();return;}
   if(a==='cpy'){var t=fmtD(h.result,true);copyTxt(t,function(){toast('✓ '+t+' copiado');});return;}
   if(a==='del'){calcHist.splice(idx,1);saveH();renderH();return;}
   if(a==='note'){
@@ -760,6 +775,15 @@ function copyAct(txt){return{t:'copiar',copy:txt};}
 
 // parcelas
 (function(){var o='';for(var n=1;n<=18;n++)o+='<option value="'+n+'">'+n+'×</option>';$('pN').innerHTML=o;})();
+// Tudo em centavos pra parcela × quantidade bater com o total.
+// Repassando a taxa: o total sobe até dividir certinho. Sem repassar: o total é o que você digitou e a sobra vai na 1ª parcela (igual a maquininha faz).
+function parcCalc(v,n,t,rep){
+  rep=rep&&t>0;
+  var c=Math.round((rep?v/(1-t/100):v)*100),base=Math.floor(c/n),rem=c-base*n;
+  if(rep&&rem){base++;rem=0;c=base*n;}
+  if(rep&&c/100*(1-t/100)<v-0.005){c+=n;base++;}
+  return{total:c/100,par:base/100,first:rem?(base+rem)/100:0};
+}
 function calcParc(){
   var v=val('pV'),n=+$('pN').value,t=val('pT')||0,rep=$('pR').checked;
   cfg.pn=n;cfg.repass=rep;
@@ -769,14 +793,15 @@ function calcParc(){
   if(!v||v<=0){emptyRes('pRes','Digite o valor');}
   else if(t>=100){emptyRes('pRes','Taxa inválida');}
   else{
-    var total=rep?v/(1-t/100):v,rec=rep?v:v*(1-t/100),par=total/n;
-    var txt=(n>1?n+'x de '+money(par)+' (total '+money(total)+')':money(total)+' à vista');
+    var pc=parcCalc(v,n,t,rep),total=pc.total,rec=total*(1-t/100),par=pc.par;
+    var ptxt=pc.first?'1ª de '+money(pc.first)+' + '+(n-1)+'x de '+money(par):n+'x de '+money(par);
+    var txt=(n>1?ptxt+' (total '+money(total)+')':money(total)+' à vista');
     setRes('pRes',rep?'Cliente paga':'Valor da venda',money(total),
-      [[n+'× de',money(par)],['Você recebe',money(rec)],['Taxa da maquininha',money(total-rec)]],
+      [pc.first?['1ª de '+money(pc.first)+' + '+(n-1)+'× de',money(par)]:[n+'× de',money(par)],['Você recebe',money(rec)],['Taxa da maquininha',money(total-rec)]],
       [copyAct(txt),useAct(total,(rep?'Parcelado ':'')+n+'× '+fmtD(fmtN(v),false))]);
     for(var k=1;k<=12;k++){
       var tk=cfg.rates[k]||0;if(tk>=100)continue;
-      var tot=rep?v/(1-tk/100):v;
+      var tot=parcCalc(v,k,tk,rep).total;
       tb+='<tr data-n="'+k+'"'+(k===n?' class="sel"':'')+'><td>'+k+'×</td><td>'+money(tot/k)+'</td><td>'+money(tot)+'</td><td>'+num(tk,2)+'%</td></tr>';
     }
   }
@@ -996,6 +1021,9 @@ function bksp(){
   expr=expr.slice(0,-1);
 }
 
+// número negativo no fim (−5) ganha parênteses antes de elevar: (−5)² = 25
+function wrapNeg(){var m=expr.match(/^(.*?)(-[0-9.]+)$/);if(m&&(!m[1]||OPEND.test(m[1])))expr=m[1]+'('+m[2]+')';}
+
 // ── CIENTÍFICA ──
 function handleSci(key){
   hap('lt');snd('sci');
@@ -1003,7 +1031,7 @@ function handleSci(key){
   var nm=expr&&!OPEND.test(expr);
   if(key==='pi'){if(nm)expr+='×';expr+='π';}
   else if(key==='e'){if(nm)expr+='×';expr+='e';}
-  else if(key==='mod'||key==='pow'){if(!nm){render();return;}expr+=key==='mod'?'mod':'^';}
+  else if(key==='mod'||key==='pow'){if(!nm){render();return;}if(key==='pow')wrapNeg();expr+=key==='mod'?'mod':'^';}
   else{if(nm)expr+='×';expr+=key+'(';openParens++;}
   render();
 }
@@ -1056,7 +1084,7 @@ function handle(key){
   }else if(key==='('){if(expr&&!OPEND.test(expr))expr+='×';expr+='(';openParens++;}
   else if(key===')'){if(openParens>0&&!OPEND.test(expr)){expr+=')';openParens--;}}
   else if(key==='sqrt'){if(expr&&!OPEND.test(expr))expr+='×';expr+='√(';openParens++;}
-  else if(key==='x2'){if(/[0-9)πe]$/.test(expr))expr+='²';}
+  else if(key==='x2'){if(/[0-9)πe]$/.test(expr)){wrapNeg();expr+='²';}}
   else if(key==='back'){if(justEvaled){expr='';justEvaled=false;openParens=0;}else bksp();}
   else if(key==='='){
     if(!expr||justEvaled){snd('fn');render();return;}
