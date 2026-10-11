@@ -144,6 +144,7 @@ svg{display:block;}
 .swap{display:block;margin:10px auto 0;font-size:12px;font-weight:700;padding:7px 14px;border-radius:20px;background:rgba(var(--fg),.07);border:1px solid rgba(var(--fg),.1);color:rgba(var(--fg),.75);}
 
 /* ── CELULAR DEITADO ── */
+#app.short #grid{padding-bottom:10px;}#app.short .pbody{padding-bottom:16px;}
 #app{padding-left:var(--safe-area-inset-left,env(safe-area-inset-left,0px));padding-right:var(--safe-area-inset-right,env(safe-area-inset-right,0px));}
 @media (orientation:landscape) and (max-height:540px) and (hover:none){
   #top{padding-top:8px;padding-bottom:6px;}
@@ -1591,15 +1592,15 @@ if(NATIVE){try{var AP=window.Capacitor.Plugins.App;if(AP)AP.addListener('backBut
   AP.exitApp();
 });}catch(e){}}
 
-// iPhone (app na tela inicial): o iOS às vezes deixa uma faixa vazia embaixo; força a altura da tela inteira.
-// Depois de um recarregar dentro do app da tela inicial, o iOS encolhe a área visível de verdade: aí forçar a altura corta a última fileira.
-var NAV_RELOAD=false;try{NAV_RELOAD=performance.getEntriesByType('navigation')[0].type==='reload';}catch(e){}
-var outerEl=$('outer');
+// iPhone (app na tela inicial): no iOS 26 a área do app às vezes fica mais baixa que a tela (o sistema desenha uma faixa embaixo).
+// Nunca força altura maior que a área visível (isso cortava a última fileira); quando a área é baixa, tira o respiro de baixo pras teclas descerem.
+var outerEl=$('outer'),appEl=$('app');
 function fitHeight(){
-  if(matchMedia('(min-width:520px) and (min-height:560px),(min-width:520px) and (hover:hover) and (pointer:fine)').matches){outerEl.style.height='';outerEl.style.bottom='';return;}
+  if(matchMedia('(min-width:520px) and (min-height:560px),(min-width:520px) and (hover:hover) and (pointer:fine)').matches){outerEl.style.height='';outerEl.style.bottom='';appEl.classList.remove('short');return;}
   var h=window.innerHeight;
-  if(navigator.standalone&&!NAV_RELOAD){var land=Math.abs(window.orientation||0)===90;h=Math.max(h,land?Math.min(screen.width,screen.height):Math.max(screen.width,screen.height));}
   outerEl.style.bottom='auto';outerEl.style.height=h+'px';
+  var full=Math.abs(window.orientation||0)===90?Math.min(screen.width,screen.height):Math.max(screen.width,screen.height);
+  appEl.classList.toggle('short',!!navigator.standalone&&full-h>=40);
 }
 fitHeight();
 window.addEventListener('resize',fitHeight);
