@@ -1604,11 +1604,13 @@ if(NATIVE){try{var AP=window.Capacitor.Plugins.App;if(AP)AP.addListener('backBut
 });}catch(e){}}
 
 // iPhone (app na tela inicial): o iOS às vezes deixa uma faixa vazia embaixo; força a altura da tela inteira.
+// Depois de um recarregar dentro do app da tela inicial, o iOS encolhe a área visível de verdade: aí forçar a altura corta a última fileira.
+var NAV_RELOAD=false;try{NAV_RELOAD=performance.getEntriesByType('navigation')[0].type==='reload';}catch(e){}
 var outerEl=$('outer');
 function fitHeight(){
   if(matchMedia('(min-width:520px) and (min-height:560px),(min-width:520px) and (hover:hover) and (pointer:fine)').matches){outerEl.style.height='';outerEl.style.bottom='';return;}
   var h=window.innerHeight;
-  if(navigator.standalone){var land=Math.abs(window.orientation||0)===90;h=Math.max(h,land?Math.min(screen.width,screen.height):Math.max(screen.width,screen.height));}
+  if(navigator.standalone&&!NAV_RELOAD){var land=Math.abs(window.orientation||0)===90;h=Math.max(h,land?Math.min(screen.width,screen.height):Math.max(screen.width,screen.height));}
   outerEl.style.bottom='auto';outerEl.style.height=h+'px';
 }
 fitHeight();
@@ -1618,7 +1620,10 @@ window.addEventListener('orientationchange',function(){setTimeout(fitHeight,250)
 // ── VERSÃO NOVA ──
 var updEl=$('upd');
 function showUpd(){updEl.hidden=false;}
-updEl.addEventListener('click',function(){location.reload();});
+// No app da tela inicial do iPhone não recarrega (o iOS bagunça a altura da tela): a versão nova entra ao fechar e abrir.
+var IOS_APP=!!navigator.standalone;
+if(IOS_APP)updEl.textContent='Nova versão pronta · feche e abra o app';
+updEl.addEventListener('click',function(){if(IOS_APP){updEl.hidden=true;return;}location.reload();});
 if('serviceWorker' in navigator&&!NATIVE){
   navigator.serviceWorker.addEventListener('message',function(e){if(e.data&&e.data.t==='upd')showUpd();});
   var askUpd=function(){var c=navigator.serviceWorker.controller;if(c)c.postMessage({t:'chk'});};
@@ -1630,7 +1635,7 @@ try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().
 // ── INÍCIO ──
 buildThemes();applyTheme();if(cfg.wake)setWL(true);
 buildGrid();buildSci();setMode(!!cfg.sci);render();renderBadge();renderMem();
-if('serviceWorker' in navigator&&!NATIVE&&/^https?:$/.test(location.protocol)){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').then(function(r){r.update();}).catch(function(){});var _t0=Date.now(),_had=!!navigator.serviceWorker.controller;navigator.serviceWorker.addEventListener('controllerchange',function(){if(_had&&Date.now()-_t0<15000&&!window._rl){window._rl=1;location.reload();}});});}
+if('serviceWorker' in navigator&&!NATIVE&&/^https?:$/.test(location.protocol)){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').then(function(r){r.update();}).catch(function(){});var _t0=Date.now(),_had=!!navigator.serviceWorker.controller;navigator.serviceWorker.addEventListener('controllerchange',function(){if(_had&&Date.now()-_t0<15000&&!window._rl){window._rl=1;if(navigator.standalone)showUpd();else location.reload();}});});}
 </script>
 </body>
 </html>
