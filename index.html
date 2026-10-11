@@ -6,8 +6,9 @@
 <title>Calculadora</title>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="mobile-web-app-capable" content="yes"/>
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
-<script>try{var _b=(localStorage.getItem('cbg')||'').split('|');if(_b[0]){document.documentElement.style.background=_b[0];if(_b[1]==='1'){document.documentElement.className='light';document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"]').setAttribute('content','default');}}}catch(e){}</script>
+<!-- iOS 26: com "black-translucent" o sistema encolhe o app (faixa preta embaixo) e borra o topo. Barra opaca resolve os dois. -->
+<meta name="apple-mobile-web-app-status-bar-style" content="black"/>
+<script>try{var _b=(localStorage.getItem('cbg')||'').split('|');if(_b[0]){document.documentElement.style.background=_b[0];if(_b[1]==='1'){document.documentElement.className='light';}}}catch(e){}</script>
 <meta name="apple-mobile-web-app-title" content="Calculadora"/>
 <meta name="theme-color" content="#0e0e0e"/>
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=2"/>
