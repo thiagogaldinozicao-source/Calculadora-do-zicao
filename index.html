@@ -31,11 +31,11 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer;out
 svg{display:block;}
 
 /* ── MOLDURA ── */
-#outer{position:fixed;inset:0;height:100vh;height:100lvh;background:var(--brd);padding:2px;}
-#app{position:absolute;inset:2px;display:flex;flex-direction:column;background:var(--bg);overflow:hidden;container-type:inline-size;}
+#outer{position:fixed;inset:0;height:100vh;height:100lvh;background:var(--bg);padding:0;}
+#app{position:absolute;inset:0;display:flex;flex-direction:column;background:var(--bg);overflow:hidden;container-type:inline-size;}
 @media (min-width:520px) and (min-height:560px),(min-width:520px) and (hover:hover) and (pointer:fine){
-  #outer{position:relative;inset:auto;width:min(420px,96vw);height:min(880px,96vh);border-radius:34px;box-shadow:0 30px 80px rgba(0,0,0,.6),0 0 0 1px rgba(var(--fg),.04);}
-  #app{border-radius:32px;}
+  #outer{position:relative;inset:auto;width:min(420px,96vw);height:min(880px,96vh);border-radius:34px;background:var(--brd);padding:2px;box-shadow:0 30px 80px rgba(0,0,0,.6),0 0 0 1px rgba(var(--fg),.04);}
+  #app{inset:2px;border-radius:32px;}
 }
 
 /* ── ORBS ── */
