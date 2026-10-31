@@ -5,3 +5,7 @@ ios/App/App/public/
 ios/DerivedData/
 android/
 .DS_Store
+
+# Chaves de assinatura ficam fora do Git
+*.jks
+*.keystore

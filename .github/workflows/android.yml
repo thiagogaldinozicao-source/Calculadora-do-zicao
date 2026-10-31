@@ -51,11 +51,49 @@ jobs:
           sed -i -E "s/versionCode [0-9]+/versionCode ${GITHUB_RUN_NUMBER}/; s/versionName \"[^\"]*\"/versionName \"1.${GITHUB_RUN_NUMBER}\"/" android/app/build.gradle
           grep -E "versionCode|versionName" android/app/build.gradle
 
-      - name: Chave de assinatura (mesma sempre, pra atualizar por cima)
-        run: mkdir -p ~/.android && cp android-keystore/zicao.keystore ~/.android/debug.keystore
+      - name: Restaurar chave dos Secrets
+        env:
+          KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          STORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          set -eu
+          : "${KEYSTORE_BASE64:?Configure ANDROID_KEYSTORE_BASE64}"
+          : "${STORE_PASSWORD:?Configure ANDROID_KEYSTORE_PASSWORD}"
+          : "${KEY_ALIAS:?Configure ANDROID_KEY_ALIAS}"
+          : "${KEY_PASSWORD:?Configure ANDROID_KEY_PASSWORD}"
+          umask 077
+          printf '%s' "$KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/signing.keystore"
+
+      - name: Configurar assinatura sem gravar senhas
+        run: |
+          cat >> android/app/build.gradle <<'GRADLE'
+          android {
+              signingConfigs {
+                  secure {
+                      storeFile file(System.getenv('RUNNER_TEMP') + '/signing.keystore')
+                      storePassword System.getenv('STORE_PASSWORD')
+                      keyAlias System.getenv('KEY_ALIAS')
+                      keyPassword System.getenv('KEY_PASSWORD')
+                  }
+              }
+              buildTypes {
+                  debug { signingConfig signingConfigs.secure }
+              }
+          }
+          GRADLE
 
       - name: Gerar APK
+        env:
+          STORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
         run: cd android && chmod +x gradlew && ./gradlew assembleDebug --no-daemon
+
+      - name: Limpar chave temporária
+        if: always()
+        run: rm -f "$RUNNER_TEMP/signing.keystore"
 
       - run: cp android/app/build/outputs/apk/debug/app-debug.apk calculadora-zicao.apk
 
