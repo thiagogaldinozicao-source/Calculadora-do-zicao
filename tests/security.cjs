@@ -13,7 +13,10 @@ const server = http.createServer((req, res) => {
     page.on('pageerror', e => errors.push(e.message));
     await page.goto('http://127.0.0.1:' + server.address().port);
     await page.waitForTimeout(500);
-    assert((await page.title()).includes('Zicão'));
+    assert.equal(await page.title(), 'Calculadora');
+    await page.keyboard.type('2+3');
+    await page.keyboard.press('Enter');
+    assert.equal(await page.locator('#numDisp').innerText(), '5');
     assert((await page.locator('body').innerText()).length > 100);
     assert.deepEqual(errors, []);
     console.log('PASS: calculator opens without JavaScript errors');
